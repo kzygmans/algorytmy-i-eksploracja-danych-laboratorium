@@ -29,28 +29,20 @@ def zadanie1():
 def zadanie2():
     print('Zadanie 2')
     global models, models_names, models_predict, models_predict_proba
-    print(type(X_train), type(y_train))
-    print(X_train)
-    print(y_train.values.ravel())
-
-    # SVM
     X = X_train.copy()
     y = y_train.copy()
     y = y.values.ravel()
-    print('after copy')
     print(X, y)
+
+    # SVM
     clf_svm = svm.SVC(probability=True)
     clf_svm.fit(X, y)
     p1 = clf_svm.predict(X_test)
     pp1 = clf_svm.predict_proba(X_test)
     print("p1 result:")
     print(p1)
-    print(y_test)
 
     # KNN
-    X = X_train.copy()
-    y = y_train.copy()
-    y = y.values.ravel()
     clf_knn = KNeighborsClassifier(n_neighbors=3)
     clf_knn.fit(X, y)
     p2 = clf_knn.predict(X_test)
@@ -59,9 +51,6 @@ def zadanie2():
     print(p2)
 
     # Decision Tree
-    X = X_train.copy()
-    y = y_train.copy()
-    y = y.values.ravel()
     clf_dt = tree.DecisionTreeClassifier()
     clf_dt = clf_dt.fit(X, y)
     p3 = clf_dt.predict(X_test)
@@ -70,9 +59,6 @@ def zadanie2():
     print(p3)
 
     # Random Forest
-    X = X_train.copy()
-    y = y_train.copy()
-    y = y.values.ravel()
     clf_rf = RandomForestClassifier(max_depth=2, random_state=0)
     clf_rf.fit(X, y)
     p4 = clf_rf.predict(X_test)
@@ -85,7 +71,6 @@ def zadanie2():
     models = [clf_svm, clf_knn, clf_dt, clf_rf]
     models_predict = [p1, p2, p3, p4]
     models_predict_proba = [pp1, pp2, pp3, pp4]
-
 
 
 def zadanie3():
@@ -134,7 +119,63 @@ def zadanie3():
         print('Odchylenie standardowe:', score.std() * 2)
 
 
+def zadanie4():
+    print('Zadanie 4')
+    X = X_train.copy()
+    y = y_train.copy()
+    y = y.values.ravel()
+
+    # SVM
+    c = 0
+    best = 0
+    for i in range(1, 10):
+        clf_svm = svm.SVC(C=i/10, probability=True)
+        clf_svm.fit(X, y)
+        score = cross_val_score(clf_svm, X_test, y_test.values.ravel(), cv=5)
+        if score.mean() > best:
+            best = score.mean()
+            c = i/10
+    print('SVM\nNajlepszy wynik: {} uzyskano dla c={}'.format(best, c))
+
+    # KNN
+    n_neighbors = 0
+    best = 0
+    for i in range(1, 20):
+        clf_knn = KNeighborsClassifier(n_neighbors=i)
+        clf_knn.fit(X, y)
+        score = cross_val_score(clf_knn, X_test, y_test.values.ravel(), cv=5)
+        if score.mean() > best:
+            best = score.mean()
+            n_neighbors = i
+    print('KNN\nNajlepszy wynik: {} uzyskano dla n_neighbors={}'.format(best, n_neighbors))
+
+    # Decision Tree
+    min_samples_split = 0
+    best = 0
+    for i in range(2, 10):
+        clf_dt = tree.DecisionTreeClassifier(min_samples_split=i)
+        clf_dt = clf_dt.fit(X, y)
+        score = cross_val_score(clf_dt, X_test, y_test.values.ravel(), cv=5)
+        if score.mean() > best:
+            best = score.mean()
+            min_samples_split = i
+    print('Decision Tree\nNajlepszy wynik: {} uzyskano dla min_samples_split={}'.format(best, min_samples_split))
+
+    # Random Forest
+    n_estimators =0
+    best = 0
+    for i in range(10, 110, 5):
+        clf_rf = RandomForestClassifier(max_depth=2, random_state=0, n_estimators=i)
+        clf_rf.fit(X, y)
+        score = cross_val_score(clf_rf, X_test, y_test.values.ravel(), cv=5)
+        if score.mean() > best:
+            best = score.mean()
+            n_estimators = i
+    print('Random Forest\nNajlepszy wynik: {} uzyskano dla n_estimators={}'.format(best, n_estimators))
+
+
 if __name__ == "__main__":
     zadanie1()
     zadanie2()
     zadanie3()
+    zadanie4()
